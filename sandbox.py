@@ -11,7 +11,7 @@ date = '03-Jul-2018'
 
 session = Session(data,mouse,date)
 session._get_behavior_data()
-wfield = Widefield(session)
+wf = Widefield(data,mouse,date)
 
 
 ## DO NOT CONFUSE INDEXING BETWEEN MATLAB AND PYTHON

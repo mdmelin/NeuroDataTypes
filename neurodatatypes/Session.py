@@ -1,53 +1,47 @@
 # -*- coding: utf-8 -*-
-import numpy as np
-import pandas as pd
+from .data_utils import load_session_dataframe, load_session_metadata
+from . import paths
 import os
 import glob
-from .data_utils import create_bhv_dataframe
-
-
-EXPERIMENT = 'Widefield'
-TASK = 'SpatialDisc'
-SVD_FILENAME = 'Vc.mat'
-OPTS_FILE_WILDCARD = 'opts*.mat'
-
-
+from multiprocessing import Pool, freeze_support
+from itertools import repeat
+from datetime import datetime
+#TODO: Create Subject object and a file to save metadata to
 class Session():
-    def __init__(self, dPath, Animal, Rec):
+    def __init__(self, datapath, animal, date):
 
-        self.dpath = dPath
-        self.animal = Animal
-        self.date = Rec
+        self.datapath = datapath
+        self.animal = animal
+        self.date = date
         self.data = None #only generate pandas dataframe if required.
-
-        searchpath = os.path.join(dPath, Animal, TASK, Rec)
-        bhv_file_wildcard = '{}_{}_*_Session*.mat'.format(Animal, TASK)
-        bhv_filenames = glob.glob(os.path.join(searchpath, bhv_file_wildcard))
-        assert len(
-            bhv_filenames) == 1, "Can't find behavior file or there are multiple."
-
-        
-        opts_filenames = glob.glob(
-            os.path.join(searchpath, OPTS_FILE_WILDCARD))
-        if len(opts_filenames) > 1:
-            print(
-                '\nThere are multiple opts files for this session, selecting the latest one.')
-
-        optspath = os.path.join(searchpath, opts_filenames[-1])
-        bhvpath = os.path.join(searchpath, bhv_filenames[0])
-        svdpath = os.path.join(searchpath, SVD_FILENAME)
-        ephyspath = None
-        twoppath = None
-        
-        self.paths = {'wfield': None, 'svd': svdpath, 'opts': optspath, 'behavior': bhvpath} #Paths to all availible data
-
-    def report_session_info():  # report back session metadata (% correct, etc.)
-        raise NotImplementedError()
+        self.bhvpath = paths.get_behavior_path(datapath, animal, date)
+        self.metadata = load_session_metadata(self.bhvpath) #TODO: maybe pin to a metadata file for quicker access
+        self.data = load_session_dataframe(self.bhvpath)
         
     def _get_expected_states(self,GLMHMM): #TODO: probably move to glmhmm object
         raise NotImplementedError()
-
-    def _get_behavior_data(self):  # load behavior file into pandas dataframe
-        print('\nGenerating pandas DataFrame of behavioral data for each trial.')
-        self.data = create_bhv_dataframe(self.paths['behavior'])
         
+    @staticmethod
+    def return_dates(animal):
+        '''
+        This function will return session dates for an animal that satisfy
+        a certain criteria. create this function after done with other methods 
+        that return performance and metadata for a session.
+        '''
+        raise NotImplementedError()        
+        
+    @staticmethod
+    def all_sessions(dpath, animal,modality = None): #TODO: Make general purpose for dataset, or move it
+        '''
+        Loads all availible sessions into list in parallel
+        '''
+        dates = os.listdir(os.path.join(dpath,animal,'SpatialDisc'))
+        #sessions = [Session(dpath,animal,date) for date in dates] #single thread
+        with Pool() as pool:
+            sessions = pool.starmap(Session, zip(repeat(dpath), repeat(animal), dates))
+        sessions_sorted = sorted(sessions,key=lambda session: datetime.strptime(session.date[:11], "%d-%b-%Y")) #sort sessions by date       
+        
+        if modality is not None:
+            sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['modality'] == modality]
+        return sessions_sorted
+    
