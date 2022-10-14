@@ -23,7 +23,7 @@ class Session():
         raise NotImplementedError()
         
     def get_expected_states(self,GLMHMM): #TODO: probably move to glmhmm object
-        raise NotImplementedError()
+        raise NotImplementedError() 
         
     @staticmethod
     def return_dates(animal):

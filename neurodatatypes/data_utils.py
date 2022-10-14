@@ -89,7 +89,12 @@ def load_widefield_SVD(SVDpath): #return SVD components
     Vc = matfile['Vc']
     frametimes = matfile['blueFrametimes']
     bpod_trials = matfile['bTrials'] #bpod trial numbers that have widefield data
-    return U, Vc, frametimes, bpod_trials
+    trials = matfile['trials']
+
+    bpod_trials = bpod_trials - 1 # ESSENTIAL LINE, WE MOVE THE BPOD TRIAL INDICES DOWN BY ONE SINCE WE'RE CONVERTING FROM MATLAB TO PYTHON
+    trials = trials - 1
+    
+    return U, Vc, frametimes, bpod_trials, trials
 
 def load_widefield_opts(optspath):
     matfile = loadmat(optspath, simplify_cells=True)
