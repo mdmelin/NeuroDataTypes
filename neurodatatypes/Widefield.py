@@ -1,4 +1,4 @@
-from .data_utils import load_widefield_raw, load_widefield_SVD
+from .data_utils import load_widefield_raw, load_widefield_SVD, load_widefield_opts
 from . import paths
 
 class Widefield():
@@ -11,9 +11,13 @@ class Widefield():
         self.segInx = None
         self.transParams = None
 
-        self.optspath = paths.get_wfield_opts_path(datapath, animal, date) 
-        self.wfpath = paths.get_wfield_path(datapath, animal, date)
-        self.svdpath = paths.get_SVD_path(datapath, animal, date)
+        optspath = paths.get_wfield_opts_path(datapath, animal, date) 
+        wfpath = paths.get_wfield_path(datapath, animal, date)
+        svdpath = paths.get_SVD_path(datapath, animal, date)
         
-        self.raw = load_widefield_raw(self.wfpath)
-        self.U, self.Vc = load_widefield_SVD(self.svdpath)
+        self.raw = load_widefield_raw(wfpath)
+        self.U, self.Vc, self.frametimes, self.bpod_trials = load_widefield_SVD(svdpath)
+        self.opts = load_widefield_opts(optspath)
+    def align_to_behavior(self):
+        
+        raise NotImplementedError()

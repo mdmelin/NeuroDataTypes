@@ -16,7 +16,6 @@ def get_behavior_path(datapath, animal, date):
     bhvpath = os.path.join(searchpath, bhv_filenames[0])
     return bhvpath
 
-
 def get_wfield_opts_path(datapath, animal, date):
     searchpath = os.path.join(datapath, animal, TASK, date)
     opts_filenames = glob.glob(os.path.join(searchpath, OPTS_FILE_WILDCARD))
