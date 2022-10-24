@@ -42,7 +42,7 @@ class Widefield():
         
         epoch_lengths = np.array([1, 0.5, 1.00, 0.4, 0.75]) # TODO: make this a function arg
         fs = self.opts['frameRate']
-        epoch_frames = np.cumsum(np.floor(epoch_lengths * fs), dtype=int) #length of each trial epoch in frames
+        epoch_frames = np.cumsum(np.floor(epoch_lengths * fs), dtype=int) #marks the frames where each epoch begins
         
         #do the actual alignment
         rejected_count = 0
@@ -50,11 +50,13 @@ class Widefield():
         
         for i in range(np.shape(self.Vc)[2]): #iterate over trials
             f = 3
-            #do aligning here
+            aligned_frame = self._align_one_frame() #do aligning here
             
-
-        
         
         del self.Vc #TODO: delete things that are unneeded now
         raise NotImplementedError()
         return alVc, bpod_trials
+    
+    def _align_one_frame(self, frame, epoch_frames):
+        raise NotImplementedError()
+        return aligned_frame

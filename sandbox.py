@@ -9,12 +9,17 @@ data = 'X:\Widefield'
 mouse = 'mSM63'
 date = '03-Jul-2018'
 
-session = Session(data,mouse,date)
-session._get_behavior_data()
+session = Session(data,mouse,date) # TODO: somehow grab sessions with min number of trials in each state
 wf = Widefield(data,mouse,date)
 
+trials = np.array([0,1,2,3,4,5,6,7,154,300,301,302]) #start from zero
+wf.align_to_behavior(requested_trials=trials)
 
-## DO NOT CONFUSE INDEXING BETWEEN MATLAB AND PYTHON
+
+
+#%%
+
+### DO NOT CONFUSE INDEXING BETWEEN MATLAB AND PYTHON
 
 """
 The general order should be as follows.
