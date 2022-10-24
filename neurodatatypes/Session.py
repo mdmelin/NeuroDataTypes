@@ -17,7 +17,7 @@ class Session():
         self.data = None #only generate pandas dataframe if required.
         self.bhvpath = paths.get_behavior_path(datapath, animal, date)
         self.metadata = load_session_metadata(self.bhvpath) #TODO: maybe pin to a metadata file for quicker access
-        self.data = load_session_dataframe(self.bhvpath)
+        self.data, self.stimtimes = load_session_dataframe(self.bhvpath)
     
     def get_trial_indices(self): #returns trial numbers based on desired condition
         raise NotImplementedError()
@@ -36,9 +36,7 @@ class Session():
         
     @staticmethod
     def get_sessions(dpath, animal, modality = None, min_trials = None, singlespout_cutoff = None, assisted_cutoff = None, discrim_cutoff = None, min_percent_correct = None): #TODO: Make general purpose for dataset, or move it
-    #TODO: support for multiple animals
     #TODO: get by date
-    #TODO: Filter by assisted/singlespout/etc
         '''
         Loads all availible sessions into list in parallel
         '''

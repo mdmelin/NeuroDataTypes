@@ -40,6 +40,7 @@ def load_session_dataframe(bhvpath): #return DataFrame with info for each trial
     stimside = matfile['CorrectSide']- 1
     stimtype = matfile['StimType']
     stimstruct = matfile['stimEvents'] #TODO: This has been removed from the dataframe because it casts the np array as an array of objects. there is probably a way to input this separately into the dataframe so it doesn't disrupt the others
+            
     # TODO: change this to leftstim and right stim
     # TODO: compute reaction times? or maybe just put important times into another array
     targstim = matfile['TargStim']
@@ -63,7 +64,7 @@ def load_session_dataframe(bhvpath): #return DataFrame with info for each trial
                                 'choice', 'stimside', 'stimtype',
                                 'targstim', 'diststim', 'assistted',
                                 'singlespout', 'rewarded', 'optotype'])
-    return behavior_dataframe
+    return behavior_dataframe, stimstruct
 
 def load_session_metadata(bhvpath): #this will return a dictionary with modality and other metadata (things that span all trials)
     #TODO: add more metadata
