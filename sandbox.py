@@ -4,6 +4,9 @@
 from neurodatatypes import *
 from sklearn.decomposition import PCA
 import numpy as np
+from wfield import *
+import matplotlib.pyplot as plt
+
 #%% Lets try to plot a heatmap
 data = 'X:\Widefield'
 mouse = 'mSM63'
@@ -11,7 +14,13 @@ date = '03-Jul-2018'
 
 session = Session(data,mouse,date) # TODO: somehow grab sessions with min number of trials in each state
 wf = Widefield(data,mouse,date)
+out = reconstruct(wf.U, np.nanmean(wf.Vc, axis=(1,2)))
+plt.figure()
+plt.imshow(wf.U[:,:,0],cmap='seismic')
+plt.figure()
+plt.imshow(out,cmap='seismic')
 
+#%%
 trials = np.array([0,1,2,3,4,5,6,7,154,300,301,302]) #start from zero
 wf.align_to_behavior(requested_trials=trials)
 
