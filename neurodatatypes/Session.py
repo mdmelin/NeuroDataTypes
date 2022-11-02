@@ -35,7 +35,7 @@ class Session():
         raise NotImplementedError()        
         
     @staticmethod
-    def get_sessions(dpath, animal, modality = None, min_trials = None, singlespout_cutoff = None, assisted_cutoff = None, discrim_cutoff = None, min_percent_correct = None): #TODO: Make general purpose for dataset, or move it
+    def get_sessions(dpath, animal, modality = None, min_trials = None, singlespout_cutoff = None, assisted_cutoff = None, discrim_min = None, discrim_max = None, min_percent_correct = None): #TODO: Make general purpose for dataset, or move it
     #TODO: get by date
         '''
         Loads all availible sessions into list in parallel
@@ -43,9 +43,9 @@ class Session():
         searchdir = os.path.join(dpath,animal,'SpatialDisc')
         dates = [date for date in os.listdir(searchdir) if os.path.isdir(os.path.join(searchdir, date))] #get folders only
         
-        # sessions = [Session(dpath,animal,date) for date in dates] #single process
-        with Pool() as pool: #multiple processes
-            sessions = pool.starmap(Session, zip(repeat(dpath), repeat(animal), dates))
+        sessions = [Session(dpath,animal,date) for date in dates] #single process
+        #with Pool() as pool: #multiple processes
+        #    sessions = pool.starmap(Session, zip(repeat(dpath), repeat(animal), dates))
         
         sessions_sorted = sorted(sessions,key=lambda session: datetime.strptime(session.date[:11], "%d-%b-%Y")) #sort sessions by date       
         
@@ -55,8 +55,10 @@ class Session():
             sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['n_trials'] >= min_trials]
         if assisted_cutoff is not None:
             sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['assisted'] >= assisted_cutoff]
-        if discrim_cutoff is not None:
-            sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['discrimination'] >= discrim_cutoff]
+        if discrim_min is not None:
+            sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['discrimination'] >= discrim_min]
+        if discrim_max is not None:
+            sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['discrimination'] <= discrim_max]
         if min_percent_correct is not None:
             sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['percent_correct'] >= min_percent_correct]
         if singlespout_cutoff is not None:
