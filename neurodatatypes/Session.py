@@ -6,6 +6,7 @@ import glob
 from multiprocessing import Pool, freeze_support
 from itertools import repeat
 from datetime import datetime
+import numpy as np
 
 #TODO: Create Subject object and a file to save metadata to
 class Session():
@@ -35,7 +36,7 @@ class Session():
         raise NotImplementedError()        
         
     @staticmethod
-    def get_sessions(dpath, animal, modality = None, min_trials = None, singlespout_cutoff = None, assisted_cutoff = None, discrim_min = None, discrim_max = None, min_percent_correct = None): #TODO: Make general purpose for dataset, or move it
+    def get_sessions(dpath, animal, max_nochoice = None, modality = None, min_trials = None, singlespout_cutoff = None, assisted_cutoff = None, discrim_min = None, discrim_max = None, min_percent_correct = None): #TODO: Make general purpose for dataset, or move it
     #TODO: get by date
         '''
         Loads all availible sessions into list in parallel
@@ -43,9 +44,9 @@ class Session():
         searchdir = os.path.join(dpath,animal,'SpatialDisc')
         dates = [date for date in os.listdir(searchdir) if os.path.isdir(os.path.join(searchdir, date))] #get folders only
         
-        sessions = [Session(dpath,animal,date) for date in dates] #single process
-        #with Pool() as pool: #multiple processes
-        #    sessions = pool.starmap(Session, zip(repeat(dpath), repeat(animal), dates))
+        #sessions = [Session(dpath,animal,date) for date in dates] #single process
+        with Pool() as pool: #multiple processes
+            sessions = pool.starmap(Session, zip(repeat(dpath), repeat(animal), dates))
         
         sessions_sorted = sorted(sessions,key=lambda session: datetime.strptime(session.date[:11], "%d-%b-%Y")) #sort sessions by date       
         
@@ -62,7 +63,9 @@ class Session():
         if min_percent_correct is not None:
             sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['percent_correct'] >= min_percent_correct]
         if singlespout_cutoff is not None:
-            sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['singlespout_percent'] <= singlespout_cutoff] 
+            sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['singlespout_percent'] <= singlespout_cutoff]
+        if max_nochoice is not None:
+            sessions_sorted = [sess for sess in sessions_sorted if np.sum(np.isnan(sess.data.choice)) <= max_nochoice]
 
         return sessions_sorted
     
