@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 from neurodatatypes import *
 from sklearn.decomposition import PCA
 import numpy as np
