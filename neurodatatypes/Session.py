@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .data_utils import load_session_dataframe, load_session_metadata
+from .data_loading import load_session_dataframe, load_session_metadata
 from . import paths
 import os
 import glob
@@ -30,6 +30,7 @@ class Session():
         # This will return a dataframe of times relative to a specific trial event
         # dubbed alignment_event. 
         # The dataframe will probably need two levels of arrays. 
+        # see encoding model to find out where this is retrieved
             
     @staticmethod
     def get_sessions(dpath, #TODO: Make general purpose for dataset, or move it
