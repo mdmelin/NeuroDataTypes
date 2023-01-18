@@ -14,7 +14,7 @@ class Session():
         self.datapath = datapath
         self.animal = animal
         self.date = date
-        self.data = None #only generate pandas dataframe if required.
+        self.data = None  # only generate pandas dataframe if required.
         self.bhvpath = paths.get_behavior_path(datapath, animal, date)
         self.metadata = load_session_metadata(self.bhvpath)
         self.data, self.stimtimes = load_session_dataframe(self.bhvpath)
@@ -33,31 +33,45 @@ class Session():
         # see encoding model to find out where this is retrieved
             
     @staticmethod
-    def get_sessions(dpath, #TODO: Make general purpose for dataset, or move it
+    def get_sessions(dpath,  # TODO: Make general purpose for dataset, or move it
                      animal,
-                     max_nochoice = None,
-                     modality = None,
-                     min_trials = None,
-                     singlespout_cutoff = None,
-                     assisted_cutoff = None,
-                     discrim_min = None,
-                     discrim_max = None,
-                     min_percent_correct = None): 
-        """Returns a list of Session instances that satisfy the filtered criteria that is given to the function.
+                     max_nochoice=None,
+                     modality=None,
+                     min_trials=None,
+                     singlespout_cutoff=None,
+                     assisted_cutoff=None,
+                     discrim_min=None,
+                     discrim_max=None,
+                     min_percent_correct=None):
+        """_summary_
 
-        Args:
-            dpath (_type_): _description_
-            ormoveitanimalmax_nochoice (_type_, optional): _description_. Defaults to None.
-            modality (_type_, optional): _description_. Defaults to None.
-            min_trials (_type_, optional): _description_. Defaults to None.
-            singlespout_cutoff (_type_, optional): _description_. Defaults to None.
-            assisted_cutoff (_type_, optional): _description_. Defaults to None.
-            discrim_min (_type_, optional): _description_. Defaults to None.
-            discrim_max (_type_, optional): _description_. Defaults to None.
-            min_percent_correct (_type_, optional): _description_. Defaults to None.
+        Parameters
+        ----------
+        dpath : _type_
+            _description_
+        ormoveitanimal : _type_
+            _description_
+        max_nochoice : _type_, optional
+            _description_, by default None
+        modality : _type_, optional
+            _description_, by default None
+        min_trials : _type_, optional
+            _description_, by default None
+        singlespout_cutoff : _type_, optional
+            _description_, by default None
+        assisted_cutoff : _type_, optional
+            _description_, by default None
+        discrim_min : _type_, optional
+            _description_, by default None
+        discrim_max : _type_, optional
+            _description_, by default None
+        min_percent_correct : _type_, optional
+            _description_, by default None
 
-        Returns:
-            _type_: _description_
+        Returns
+        -------
+        sessions_sorted: list
+            a list of session objects satisfying the desired criteria, sorted by date.
         """
 
         searchdir = os.path.join(dpath,animal,'SpatialDisc')
@@ -88,4 +102,3 @@ class Session():
             sessions_sorted = [sess for sess in sessions_sorted if np.sum(np.isnan(sess.data.choice)) <= max_nochoice]
 
         return sessions_sorted
-    
