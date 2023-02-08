@@ -48,7 +48,9 @@ def load_session_dataframe(bhvpath): #return DataFrame with info for each trial
     assisted = matfile['Assisted']
     singlespout = matfile['SingleSpout']
     rewarded = matfile['Rewarded']
-
+    distractor_probability = np.array([settingsdict['DistProb'] for settingsdict in matfile['TrialSettings']]) #if set to 1 indicates discrimination is being delivered
+    distractor_fractions_length = np.array([np.size(settingsdict['DistFractions']) for settingsdict in matfile['TrialSettings']])
+    discrimination_boolean = np.logical_and(np.where(distractor_probability==1, 1, 0), np.where(distractor_fractions_length >= 4, 1,0))
     
     try:
         # get the opto data if it exists
@@ -59,11 +61,11 @@ def load_session_dataframe(bhvpath): #return DataFrame with info for each trial
     
     temparray = np.stack([choice, stimside, stimtype,
                                targstim, diststim, assisted, singlespout, 
-                               rewarded, optotype])
+                               rewarded, optotype, discrimination_boolean])
     behavior_dataframe = pd.DataFrame(temparray.T, columns=[
                                 'choice', 'stimside', 'stimtype',
                                 'targstim', 'diststim', 'assistted',
-                                'singlespout', 'rewarded', 'optotype'])
+                                'singlespout', 'rewarded', 'optotype', 'discrimination'])
     return behavior_dataframe, stimstruct
 
 def load_session_metadata(bhvpath): #this will return a dictionary with modality and other metadata (things that span all trials)

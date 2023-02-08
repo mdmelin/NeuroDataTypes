@@ -57,9 +57,11 @@ class Session():
         if assisted_cutoff is not None:
             sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['assisted'] >= assisted_cutoff]
         if discrim_min is not None:
-            sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['discrimination'] >= discrim_min]
+            #sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['discrimination'] >= discrim_min]
+            sessions_sorted = [sess for sess in sessions_sorted if (np.sum(sess.data['discrimination']) / sess.metadata['n_trials']) >= discrim_min]
         if discrim_max is not None:
-            sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['discrimination'] <= discrim_max]
+            #sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['discrimination'] <= discrim_max]
+            sessions_sorted = [sess for sess in sessions_sorted if (np.sum(sess.data['discrimination']) / sess.metadata['n_trials']) <= discrim_max]
         if min_percent_correct is not None:
             sessions_sorted = [sess for sess in sessions_sorted if sess.metadata['percent_correct'] >= min_percent_correct]
         if singlespout_cutoff is not None:
