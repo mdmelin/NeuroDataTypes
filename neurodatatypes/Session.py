@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .data_utils import load_session_dataframe, load_session_metadata
+from .data_loading import load_session_dataframe, load_session_metadata
 from . import paths
 import os
 import glob
@@ -8,43 +8,77 @@ from itertools import repeat
 from datetime import datetime
 import numpy as np
 
-#TODO: Create Subject object and a file to save metadata to
 class Session():
     def __init__(self, datapath, animal, date):
 
         self.datapath = datapath
         self.animal = animal
-        self.date = date #TODO: Make this a datetime?
-        self.data = None #only generate pandas dataframe if required.
+        self.date = date
+        self.data = None  # only generate pandas dataframe if required.
         self.bhvpath = paths.get_behavior_path(datapath, animal, date)
-        self.metadata = load_session_metadata(self.bhvpath) #TODO: maybe pin to a metadata file for quicker access
+        self.metadata = load_session_metadata(self.bhvpath)
         self.data, self.stimtimes = load_session_dataframe(self.bhvpath)
     
-    def get_trial_indices(self): #returns trial numbers based on desired condition
+    def get_trial_indices(self): 
+        """
+        returns trial numbers based on desired condition
+        """
         raise NotImplementedError()
         
-    def get_expected_states(self,GLMHMM): #TODO: probably move to glmhmm object
-        raise NotImplementedError() 
-        
+    def get_event_times(self, alignment_event):
+        raise NotImplementedError()
+        # This will return a dataframe of times relative to a specific trial event
+        # dubbed alignment_event. 
+        # The dataframe will probably need two levels of arrays. 
+        # see encoding model to find out where this is retrieved
+            
     @staticmethod
-    def return_dates(animal):
-        '''
-        This function will return session dates for an animal that satisfy
-        a certain criteria. create this function after done with other methods 
-        that return performance and metadata for a session.
-        '''
-        raise NotImplementedError()        
-        
-    @staticmethod
-    def get_sessions(dpath, animal, max_nochoice = None, modality = None, min_trials = None, singlespout_cutoff = None, assisted_cutoff = None, discrim_min = None, discrim_max = None, min_percent_correct = None): #TODO: Make general purpose for dataset, or move it
-    #TODO: get by date
-        '''
-        Loads all availible sessions into list in parallel
-        '''
+    def get_sessions(dpath,  # TODO: Make general purpose for dataset, or move it
+                     animal,
+                     max_nochoice=None,
+                     modality=None,
+                     min_trials=None,
+                     singlespout_cutoff=None,
+                     assisted_cutoff=None,
+                     discrim_min=None,
+                     discrim_max=None,
+                     min_percent_correct=None):
+        """_summary_
+
+        Parameters
+        ----------
+        dpath : _type_
+            _description_
+        ormoveitanimal : _type_
+            _description_
+        max_nochoice : _type_, optional
+            _description_, by default None
+        modality : _type_, optional
+            _description_, by default None
+        min_trials : _type_, optional
+            _description_, by default None
+        singlespout_cutoff : _type_, optional
+            _description_, by default None
+        assisted_cutoff : _type_, optional
+            _description_, by default None
+        discrim_min : _type_, optional
+            _description_, by default None
+        discrim_max : _type_, optional
+            _description_, by default None
+        min_percent_correct : _type_, optional
+            _description_, by default None
+
+        Returns
+        -------
+        sessions_sorted: list
+            a list of session objects satisfying the desired criteria, sorted by date.
+        """
+
         searchdir = os.path.join(dpath,animal,'SpatialDisc')
         dates = [date for date in os.listdir(searchdir) if os.path.isdir(os.path.join(searchdir, date))] #get folders only
         
         #sessions = [Session(dpath,animal,date) for date in dates] #single process
+
         with Pool() as pool: #multiple processes
             sessions = pool.starmap(Session, zip(repeat(dpath), repeat(animal), dates))
         
@@ -70,4 +104,3 @@ class Session():
             sessions_sorted = [sess for sess in sessions_sorted if np.sum(np.isnan(sess.data.choice)) <= max_nochoice]
 
         return sessions_sorted
-    
